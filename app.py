@@ -56,7 +56,7 @@ if st.button("Evaluar crédito"):
 
         cur.execute(
             """
-            INSERT INTO solicitudes_credito (nombre, edad, ingresos, deudas, resultado)
+            INSERT INTO ml.solicitudes_credito (nombre, edad, ingresos, deudas, resultado)
             VALUES (%s, %s, %s, %s, %s)
             """,
             (nombre, edad, ingresos, deudas, resultado)
@@ -81,7 +81,7 @@ try:
     cur.execute(
         """
         SELECT nombre, edad, ingresos, deudas, resultado
-        FROM solicitudes_credito
+        FROM ml.solicitudes_credito
         ORDER BY id DESC
         """
     )
