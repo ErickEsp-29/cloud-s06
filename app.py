@@ -170,6 +170,14 @@ if st.button("Consultar crédito"):
 
 # ── Mostrar resultado ──────────────────────────────────────────────────────────
 if st.session_state.cliente:
+
+    # ── Botón regresar ─────────────────────────────────────────────────────
+    if st.button("← Consultar otro cliente"):
+        st.session_state.cliente = None
+        st.session_state.aprobado = False
+        st.session_state.tc_aceptado = False
+        st.rerun()
+
     edad, ingreso, empleo, antiguedad, score, deudas, ratio, historial = st.session_state.cliente
     info = score_info(score)
 
@@ -205,19 +213,16 @@ if st.session_state.cliente:
 
         # Leyenda de scores
         st.markdown("#### 📊 Escala de puntajes")
-        for rango, etq, col in [
-            ("750 – 900", "Excelente ⭐", "#1abc9c"),
-            ("650 – 749", "Bueno 🟢", "#2ecc71"),
-            ("550 – 649", "Regular 🟡", "#f1c40f"),
-            ("400 – 549", "Bajo 🟠", "#e67e22"),
-            ("300 – 399", "Muy bajo 🔴", "#e74c3c"),
+        for rango, etq, col, bg in [
+            ("750 – 900", "Excelente ⭐ — Score ideal, acceso a los mejores productos y tasas.", "#1abc9c", "#eafaf1"),
+            ("650 – 749", "Bueno 🟢 — Buen perfil, crédito aprobado con condiciones estándar.", "#2ecc71", "#eafaf1"),
+            ("550 – 649", "Regular 🟡 — Perfil medio, puede requerir garantías adicionales.", "#f1c40f", "#fefce8"),
+            ("400 – 549", "Bajo 🟠 — Alto riesgo, crédito generalmente restringido.", "#e67e22", "#fef3e2"),
+            ("300 – 399", "Muy bajo 🔴 — Crédito no disponible, historial crítico.", "#e74c3c", "#fdecea"),
         ]:
-            bg = "#eafaf1" if col in ["#1abc9c", "#2ecc71"] else \
-                 "#fefce8" if col == "#f1c40f" else \
-                 "#fef3e2" if col == "#e67e22" else "#fdecea"
             st.markdown(
                 f"<div style='background:{bg}; border-left:4px solid {col}; "
-                f"padding:4px 10px; border-radius:4px; margin:3px 0; font-size:13px;'>"
+                f"padding:6px 12px; border-radius:4px; margin:4px 0; font-size:13px; color:#222;'>"
                 f"<strong>{rango}</strong> — {etq}</div>",
                 unsafe_allow_html=True
             )
