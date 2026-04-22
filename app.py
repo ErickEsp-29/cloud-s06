@@ -11,7 +11,6 @@ HOST = st.secrets["DB_HOST"]
 PORT = st.secrets["DB_PORT"]
 DBNAME = st.secrets["DB_NAME"]
 
-# 🔌 Conexión
 def get_connection():
     return psycopg2.connect(
         user=USER,
@@ -22,24 +21,26 @@ def get_connection():
         connect_timeout=5
     )
 
-# UI
 st.title("🏦 Banco Regional Andino")
 st.subheader("Simulador de Crédito Inteligente")
 
-# 🔎 SOLO DNI como entrada principal
+# 🧠 Inicializar estado
+if "cliente" not in st.session_state:
+    st.session_state.cliente = None
+
+if "aprobado" not in st.session_state:
+    st.session_state.aprobado = False
+
+
+# 🔎 BUSCAR CLIENTE
 dni = st.text_input("Ingresa tu DNI")
 
 if st.button("Consultar crédito"):
-
-    if not dni:
-        st.warning("Ingresa un DNI")
-        st.stop()
 
     try:
         conn = get_connection()
         cur = conn.cursor()
 
-        # 🔍 Buscar cliente por DNI
         cur.execute("""
             SELECT edad, ingreso_mensual, tipo_empleo,
                    antiguedad_laboral, score_crediticio,
@@ -47,7 +48,6 @@ if st.button("Consultar crédito"):
                    historial_pagos
             FROM ml.credito
             WHERE dni = %s
-            ORDER BY id DESC
             LIMIT 1
         """, (dni,))
 
@@ -56,61 +56,69 @@ if st.button("Consultar crédito"):
         cur.close()
         conn.close()
 
-        if not row:
-            st.error("❌ DNI no encontrado en el sistema")
-            st.stop()
+        if row:
+            st.session_state.cliente = row
 
-        # 📊 Datos del cliente
-        edad, ingreso, empleo, antiguedad, score, deudas, ratio, historial = row
+            edad, ingreso, empleo, antiguedad, score, deudas, ratio, historial = row
 
-        st.success("Cliente encontrado")
-
-        # 🧠 Motor de decisión (simplificado pero realista)
-        if score >= 600 and ratio < 0.4 and historial != "malo":
-            aprobado = True
-        else:
-            aprobado = False
-
-        if aprobado:
-            st.success("✅ Crédito APROBADO")
-
-            st.write("### 💰 Opciones disponibles")
-
-            monto = st.selectbox(
-                "Selecciona monto",
-                [1000, 3000, 5000, 10000, 20000]
-            )
-
-            cuotas = st.selectbox(
-                "Número de cuotas",
-                [6, 12, 18, 24, 36]
-            )
-
-            if st.button("Aceptar crédito"):
-
-                try:
-                    conn = get_connection()
-                    cur = conn.cursor()
-
-                    cur.execute("""
-                        UPDATE ml.credito
-                        SET monto_solicitado = %s,
-                            plazo_meses = %s,
-                            preaprobado = TRUE
-                        WHERE dni = %s
-                    """, (monto, cuotas, dni))
-
-                    conn.commit()
-                    cur.close()
-                    conn.close()
-
-                    st.success("🎉 Operación exitosa: crédito desembolsado en cuenta")
-
-                except Exception as e:
-                    st.error(f"Error al registrar desembolso: {e}")
+            # 🧠 decisión
+            if score >= 600 and ratio < 0.4 and historial != "malo":
+                st.session_state.aprobado = True
+            else:
+                st.session_state.aprobado = False
 
         else:
-            st.error("❌ Crédito rechazado")
+            st.session_state.cliente = None
+            st.error("❌ DNI no encontrado")
 
     except Exception as e:
-        st.error(f"Error en consulta: {e}")
+        st.error(f"Error: {e}")
+
+
+# 📌 MOSTRAR CLIENTE SI EXISTE
+if st.session_state.cliente:
+
+    edad, ingreso, empleo, antiguedad, score, deudas, ratio, historial = st.session_state.cliente
+
+    st.success("Cliente encontrado")
+
+    if st.session_state.aprobado:
+        st.success("✅ Crédito APROBADO")
+
+        monto = st.selectbox(
+            "Selecciona monto",
+            [1000, 3000, 5000, 10000, 20000],
+            key="monto"
+        )
+
+        cuotas = st.selectbox(
+            "Número de cuotas",
+            [6, 12, 18, 24, 36],
+            key="cuotas"
+        )
+
+        if st.button("Aceptar crédito"):
+
+            try:
+                conn = get_connection()
+                cur = conn.cursor()
+
+                cur.execute("""
+                    UPDATE ml.credito
+                    SET monto_solicitado = %s,
+                        plazo_meses = %s,
+                        preaprobado = TRUE
+                    WHERE dni = %s
+                """, (monto, cuotas, dni))
+
+                conn.commit()
+                cur.close()
+                conn.close()
+
+                st.success("🎉 Crédito desembolsado correctamente")
+
+            except Exception as e:
+                st.error(f"Error: {e}")
+
+    else:
+        st.error("❌ Crédito rechazado")
