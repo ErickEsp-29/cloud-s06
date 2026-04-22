@@ -107,28 +107,35 @@ def tabla_amortizacion(monto: float, tea: float, n: int) -> pd.DataFrame:
 # ─── CSS personalizado ────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-    .score-card {
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-        border-radius: 16px;
-        padding: 24px;
-        color: white;
-        text-align: center;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    .stMetric {
+        background: #1e2d40 !important;
+        border-radius: 10px;
+        padding: 12px;
+        border: 1px solid #2e4460;
+    }
+    .stMetric label {
+        color: #a8c4e0 !important;
+    }
+    .stMetric [data-testid="stMetricValue"] {
+        color: #ffffff !important;
+    }
+    .stMetric [data-testid="stMetricDelta"] {
+        color: #7ecba1 !important;
     }
     .tc-box {
-        background: #f8f9fa;
-        border: 1px solid #dee2e6;
+        background: #1a2535;
+        border: 1px solid #2e4460;
         border-radius: 10px;
         padding: 20px;
         max-height: 220px;
         overflow-y: auto;
         font-size: 13px;
         line-height: 1.7;
-        color: #444;
+        color: #cbd5e1;
         margin-bottom: 12px;
     }
-    .tc-box h4 { color: #2c3e50; margin-top: 12px; }
-    .stMetric { background: #f0f4ff; border-radius: 10px; padding: 12px; }
+    .tc-box h4 { color: #7ecba1; margin-top: 12px; }
+    .tc-box strong { color: #ffffff; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -267,50 +274,52 @@ if st.session_state.cliente:
 
         # ── TÉRMINOS Y CONDICIONES ─────────────────────────────────────────────
         st.markdown("---")
+
         st.markdown("### 📄 Términos y Condiciones")
 
-        st.markdown("""
+        tc_texto = """
         <div class="tc-box">
             <strong>CONTRATO DE CRÉDITO PERSONAL — BANCO REGIONAL ANDINO</strong><br><br>
-
-            <h4>1. Partes del contrato</h4>
+            <span style="color:#7ecba1;font-weight:bold;">1. Partes del contrato</span><br>
             El presente contrato se celebra entre <strong>Banco Regional Andino S.A.</strong>
             (en adelante "el Banco") y el cliente identificado mediante DNI ingresado en el sistema
-            (en adelante "el Prestatario").
+            (en adelante "el Prestatario").<br><br>
 
-            <h4>2. Condiciones del crédito</h4>
+            <span style="color:#7ecba1;font-weight:bold;">2. Condiciones del crédito</span><br>
             El Banco otorgará al Prestatario el monto seleccionado bajo las condiciones de tasa,
-            plazo y cuotas presentadas en el simulador. La Tasa Efectiva Anual (TEA) varía según
-            el plazo elegido y es fija durante toda la vida del crédito.
+            plazo y cuotas presentadas en el simulador. La TEA varía según el plazo elegido
+            y es fija durante toda la vida del crédito.<br><br>
 
-            <h4>3. Pago de cuotas</h4>
+            <span style="color:#7ecba1;font-weight:bold;">3. Pago de cuotas</span><br>
             El Prestatario se compromete a pagar puntualmente cada cuota mensual en la fecha
-            acordada. El incumplimiento de pago generará intereses moratorios del 2% mensual
-            adicional sobre el saldo vencido.
+            acordada. El incumplimiento generará intereses moratorios del 2% mensual adicional
+            sobre el saldo vencido.<br><br>
 
-            <h4>4. Prepago</h4>
+            <span style="color:#7ecba1;font-weight:bold;">4. Prepago</span><br>
             El Prestatario podrá realizar pagos adelantados parciales o totales en cualquier
             momento sin penalidad adicional, previa comunicación al Banco con 5 días hábiles
-            de anticipación.
+            de anticipación.<br><br>
 
-            <h4>5. Seguros obligatorios</h4>
+            <span style="color:#7ecba1;font-weight:bold;">5. Seguros obligatorios</span><br>
             El crédito incluye un seguro de desgravamen equivalente al 0.05% mensual sobre
-            el saldo deudor, deducido automáticamente de cada cuota.
+            el saldo deudor, deducido automáticamente de cada cuota.<br><br>
 
-            <h4>6. Central de riesgos</h4>
+            <span style="color:#7ecba1;font-weight:bold;">6. Central de riesgos</span><br>
             El Prestatario autoriza al Banco a reportar el comportamiento de pago ante la
-            Superintendencia de Banca, Seguros y AFP (SBS) y centrales de riesgo privadas.
+            Superintendencia de Banca, Seguros y AFP (SBS) y centrales de riesgo privadas.<br><br>
 
-            <h4>7. Protección de datos</h4>
+            <span style="color:#7ecba1;font-weight:bold;">7. Protección de datos</span><br>
             Los datos personales serán tratados conforme a la Ley N° 29733 — Ley de Protección
             de Datos Personales del Perú. El Prestatario autoriza su uso exclusivamente para
-            fines relacionados con este crédito.
+            fines relacionados con este crédito.<br><br>
 
-            <h4>8. Jurisdicción</h4>
+            <span style="color:#7ecba1;font-weight:bold;">8. Jurisdicción</span><br>
             Cualquier controversia será sometida a los jueces y tribunales de Lima Metropolitana,
             renunciando el Prestatario a cualquier otro fuero que pudiera corresponderle.
         </div>
-        """, unsafe_allow_html=True)
+        """
+
+        st.markdown(tc_texto, unsafe_allow_html=True)
 
         # Checkbox de aceptación
         acepta = st.checkbox(
